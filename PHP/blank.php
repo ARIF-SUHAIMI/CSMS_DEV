@@ -2,12 +2,55 @@
     session_start();
 
     if ($_SESSION["Login"] != "YES")
-        header("Location: ../html/index.html");
+        header("Location: ../index.html");
 
     function displayCurrentDateTime() {
         $currentDateTime = date('Y-m-d');
         echo "Current date: $currentDateTime";
         }
+        
+require("config.php");
+
+if (!$conn) {
+    echo 'failure';
+    die('Connection failed: ' . mysqli_connect_error());
+}
+
+$id = $_SESSION["ID"];
+
+$strsql = "SELECT * FROM users Where id = $id";
+echo $strsql;
+$result = mysqli_query($conn, $strsql);
+$rows = mysqli_fetch_assoc($result);
+
+if ($result) {
+    if (mysqli_num_rows($result) == 1) {
+        mysqli_close($conn);
+        ob_clean();
+        $name = $rows["name"];
+        $email = $rows["email"];
+        $password = $rows["password"];
+        $phone = $rows["phone"];
+        if($phone == null || $phone == "")
+        {
+            $phone = "NA";
+        }
+        $lname = $rows["Last_Name"];
+        if($lname == null || $lname == "")
+        {
+            $lname = "NA";
+        }
+        $pos = $rows["position"];
+        $fullname = $name . " " . $lname;
+    } else {
+        mysqli_close($conn);
+        ob_clean();
+        echo "fail";
+    }
+} else {
+    mysqli_close($conn);
+    die('Query failed: ' . mysqli_error($conn));
+}
 ?>
 
 <!DOCTYPE html>
@@ -31,7 +74,7 @@
         rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="../CSS/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
 
@@ -56,7 +99,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../PHP/Main.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -343,7 +386,7 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $fullname  ?></span>
                                 <img class="img-profile rounded-circle"
                                     src="img/undraw_profile.svg">
                             </a>
@@ -436,7 +479,7 @@
     <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="../js/sb-admin-2.min.js"></script>
+    <script src="../JS/sb-admin-2.min.js"></script>
     <script src="../JS/logout.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.1.4/sweetalert2.min.js"></script>

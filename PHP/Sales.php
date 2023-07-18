@@ -1,13 +1,56 @@
 <?php
-    session_start();
+session_start();
 
-    if ($_SESSION["Login"] != "YES")
-        header("Location: ../html/index.html");
+if ($_SESSION["Login"] != "YES")
+    header("Location: ../index.html");
 
-    function displayCurrentDateTime() {
+function displayCurrentDateTime() {
         $currentDateTime = date('Y-m-d');
         echo "Current date: $currentDateTime";
         }
+        
+require("config.php");
+
+if (!$conn) {
+    echo 'failure';
+    die('Connection failed: ' . mysqli_connect_error());
+}
+
+$id = $_SESSION["ID"];
+
+$strsql = "SELECT * FROM users Where id = $id";
+echo $strsql;
+$result = mysqli_query($conn, $strsql);
+$rows = mysqli_fetch_assoc($result);
+
+if ($result) {
+    if (mysqli_num_rows($result) == 1) {
+        mysqli_close($conn);
+        ob_clean();
+        $name = $rows["name"];
+        $email = $rows["email"];
+        $password = $rows["password"];
+        $phone = $rows["phone"];
+        if($phone == null || $phone == "")
+        {
+            $phone = "NA";
+        }
+        $lname = $rows["Last_Name"];
+        if($lname == null || $lname == "")
+        {
+            $lname = "NA";
+        }
+        $pos = $rows["position"];
+        $fullname = $name . " " . $lname;
+    } else {
+        mysqli_close($conn);
+        ob_clean();
+        echo "fail";
+    }
+} else {
+    mysqli_close($conn);
+    die('Query failed: ' . mysqli_error($conn));
+}
 ?>
 
 <!DOCTYPE html>
@@ -25,15 +68,15 @@
 
     <!-- Custom fonts for this template-->
     <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.1.4/sweetalert2.min.css"/>
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.1.4/sweetalert2.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    
 
     <!-- Custom styles for this template-->
-    <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="../CSS/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
 
@@ -58,7 +101,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../PHP/Main.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -66,74 +109,7 @@
             <!-- Divider -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Interface
-            </div>
 
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span>Components</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Components:</h6>
-                        <a class="collapse-item" href="../PHP/buttons.php">Buttons</a>
-                        <a class="collapse-item" href="../PHP/cards.php">Cards</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-                    aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-fw fa-wrench"></i>
-                    <span>Utilities</span>
-                </a>
-                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
-                    data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Utilities:</h6>
-                        <a class="collapse-item" href="../PHP/utilities-color.php">Colors</a>
-                        <a class="collapse-item" href="../PHP/utilities-border.php">Borders</a>
-                        <a class="collapse-item" href="../PHP/utilities-animation.php">Animations</a>
-                        <a class="collapse-item" href="../PHP/utilities-other.php">Other</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Addons
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
-                    <i class="fas fa-fw fa-folder"></i>
-                    <span>Pages</span>
-                </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="../PHP/login.php">Login</a>
-                        <a class="collapse-item" href="register.html">Register</a>
-                        <a class="collapse-item" href="../PHP/forgot-password.php">Forgot Password</a>
-                        <div class="collapse-divider"></div>
-                        <h6 class="collapse-header">Other Pages:</h6>
-                        <a class="collapse-item" href="../PHP/404.php">404 Page</a>
-                        <a class="collapse-item" href="../PHP/blank.php">Blank Page</a>
-                    </div>
-                </div>
-            </li>
 
             <!-- Nav Item - Charts -->
             <li class="nav-item">
@@ -148,12 +124,27 @@
                     <span>Sales</span></a>
             </li>
 
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="../PHP/getInventory.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span></a>
-            </li>
+            <?php
+            if ($_SESSION["Level"] == 2) {
+            ?> <!-- Nav Item - Tables -->
+                <li class="nav-item" hidden>
+                    <a class="nav-link" href="../PHP/getInventory.php">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Tables</span></a>
+                </li>
+            <?php
+            } else {
+            ?> <!-- Nav Item - Tables -->
+                <li class="nav-item">
+                    <a class="nav-link" href="../PHP/getInventory.php">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Tables</span></a>
+                </li>
+            <?php
+            }
+            ?>
+
+
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -181,36 +172,20 @@
                     </button>
 
                     <!-- Topbar Search -->
-                    <form
-                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                                aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
                             <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                aria-labelledby="searchDropdown">
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
                                 <form class="form-inline mr-auto w-100 navbar-search">
                                     <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
+                                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
                                         <div class="input-group-append">
                                             <button class="btn btn-primary" type="button">
                                                 <i class="fas fa-search fa-sm"></i>
@@ -222,146 +197,21 @@
                         </li>
 
                         <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
-                            </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Alerts Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                            </div>
-                        </li>
 
                         <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg"
-                                            alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-                            </div>
-                        </li>
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $fullname  ?></span>
                             </a>
                             <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="../PHP/userSettings.php">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
@@ -382,12 +232,11 @@
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Sales</h1>
                     <p class="mb-4">Car sales involve the buying and selling of vehicles for commercial purposes.
-                        The charts below have been customized - for further customization options, please visit the <a
-                            target="_blank" href="https://www.chartjs.org/docs/latest/">official Chart.js
+                        The charts below have been customized - for further customization options, please visit the <a target="_blank" href="https://www.chartjs.org/docs/latest/">official Chart.js
                             documentation</a>.</p>
 
                     <!-- Content Row -->
-                    
+
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary"><?php displayCurrentDateTime() ?></h6>
@@ -402,14 +251,20 @@
                                             <th>Sales Date</th>
                                             <th hidden>Customer ID</th>
                                             <th hidden>Product ID</th>
-                                            <th>Price</th>
+                                            <th>Customer Name</th>
+                                            <th>Contact No.</th>
+                                            <th>Original Price</th>
+                                            <th>Sold Price</th>
+                                            <th>Profit</th>
                                             <th hidden>Seller ID</th>
                                             <th>Payment Method</th>
                                             <th>Discount</th>
                                             <th>Tax</th>
+                                            <th>Shipping Fee</th>
                                             <th>Shipping City</th>
                                             <th>Order Status</th>
                                             <th>Payment Status</th>
+                                            <th>Remarks</th>
                                             <th>---</th>
                                         </tr>
                                     </thead>
@@ -422,10 +277,21 @@
                                             die('Connection failed: ' . mysqli_connect_error());
                                         }
 
-                                        $query = "SELECT * FROM CarSales WHERE delStat <> 1";
+                                        $query = "SELECT * FROM carsales WHERE delStat <> 1";
                                         $result = mysqli_query($conn, $query);
                                         $intCount = 0;
                                         while ($rows = mysqli_fetch_assoc($result)) {
+                                            $id = $rows["product_id"];
+                                            $cid = $rows["customer_id"];
+
+                                            $sqli = "SELECT * FROM inventory WHERE delStat <> 1 AND ID = $id";
+                                            $result1 = mysqli_query($conn, $sqli);
+                                            $rows1 = mysqli_fetch_assoc($result1);
+                                            $profit = $rows["unit_price"] - $rows1["Price"] ;
+
+                                            $sqlc = "SELECT * FROM customers WHERE delStat <> 1 AND id = $cid";
+                                            $resultc = mysqli_query($conn, $sqlc);
+                                            $rowsc = mysqli_fetch_assoc($resultc);
                                         ?>
                                             <tr>
                                                 <td hidden><?php echo $rows["sales_id"]; ?></td>
@@ -433,14 +299,29 @@
                                                 <td><?php echo $rows["sales_date"]; ?></td>
                                                 <td hidden><?php echo $rows["customer_id"]; ?></td>
                                                 <td hidden><?php echo $rows["product_id"]; ?></td>
-                                                <td><?php echo $rows["total_price"]; ?></td>
+                                                <td><?php echo $rowsc["name"]; ?></td>
+                                                <td><?php echo $rowsc["phone"]; ?></td>
+                                                <td><?php echo $rows1["Price"]; ?></td>
+                                                <td><?php echo $rows["unit_price"]; ?></td>
+                                                <?php
+                                                    if($profit < 0)
+                                                    {
+                                                        ?> <td style="color: red;"><?php echo $profit; ?></td> <?php
+                                                    }
+                                                    else
+                                                    {
+                                                        ?> <td style="color: green;"><?php echo $profit; ?></td> <?php
+                                                    }
+                                                ?>
                                                 <td hidden><?php echo $rows["salesperson_id"]; ?></td>
                                                 <td><?php echo $rows["payment_method"]; ?></td>
                                                 <td><?php echo $rows["discount"]; ?></td>
                                                 <td><?php echo $rows["tax"]; ?></td>
+                                                <td><?php echo $rows["shipFee"]; ?></td>
                                                 <td><?php echo $rows["shipping_address"]; ?></td>
                                                 <td><?php echo $rows["order_status"]; ?></td>
                                                 <td><?php echo $rows["payment_status"]; ?></td>
+                                                <td><?php echo $rows["remarks"]; ?></td>
                                                 <td><button class="btnDel" onclick="deleteRow(this)">Delete</button></td>
                                             </tr>
                                         <?php
@@ -453,10 +334,15 @@
                             </div>
                         </div>
                     </div>
+
                     <div>
-                        <a id="myBtn" href="../PHP/newSalesForm.php" class="btn btn-info btn-lg">
-                            <span class="glyphicon glyphicon-plus-sign"></span> New Sales
-                        </a>
+                        <table>
+                            <td>
+                                <a id="myBtn" href="../PHP/newSalesForm.php" class="btn btn-info btn-lg">
+                                    <span class="glyphicon glyphicon-plus-sign"></span> New Sales
+                                </a>
+                            </td>
+                        </table>
                     </div>
 
                 </div>
@@ -487,8 +373,7 @@
     </a>
 
     <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -499,22 +384,25 @@
                 </div>
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal" >Cancel</button>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
                     <a class="btn btn-primary" onclick="logout()">Logout</a>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Bootstrap core JavaScript-->
     <script src="../vendor/jquery/jquery.min.js"></script>
     <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <!-- Core plugin JavaScript-->
     <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
 
+
     <!-- Custom scripts for all pages-->
-    <script src="../js/sb-admin-2.min.js"></script>
+    <script src="../JS/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
     <script src="../vendor/chart.js/Chart.min.js"></script>
@@ -527,7 +415,16 @@
 
     <!-- JavaScript -->
     <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-</body>
+    
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> -->
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
 
 </html>

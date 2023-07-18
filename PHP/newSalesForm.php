@@ -2,12 +2,54 @@
 session_start();
 
 if ($_SESSION["Login"] != "YES")
-    header("Location: ../html/index.html");
+    header("Location: ../index.html");
 
-function displayCurrentDateTime()
-{
-    $currentDateTime = date('Y-m-d');
-    echo "Current date: $currentDateTime";
+function displayCurrentDateTime() {
+        $currentDateTime = date('Y-m-d');
+        echo "Current date: $currentDateTime";
+        }
+        
+require("config.php");
+
+if (!$conn) {
+    echo 'failure';
+    die('Connection failed: ' . mysqli_connect_error());
+}
+
+$id = $_SESSION["ID"];
+
+$strsql = "SELECT * FROM users Where id = $id";
+echo $strsql;
+$result = mysqli_query($conn, $strsql);
+$rows = mysqli_fetch_assoc($result);
+
+if ($result) {
+    if (mysqli_num_rows($result) == 1) {
+        mysqli_close($conn);
+        ob_clean();
+        $name = $rows["name"];
+        $email = $rows["email"];
+        $password = $rows["password"];
+        $phone = $rows["phone"];
+        if($phone == null || $phone == "")
+        {
+            $phone = "NA";
+        }
+        $lname = $rows["Last_Name"];
+        if($lname == null || $lname == "")
+        {
+            $lname = "NA";
+        }
+        $pos = $rows["position"];
+        $fullname = $name . " " . $lname;
+    } else {
+        mysqli_close($conn);
+        ob_clean();
+        echo "fail";
+    }
+} else {
+    mysqli_close($conn);
+    die('Query failed: ' . mysqli_error($conn));
 }
 ?>
 
@@ -32,7 +74,7 @@ function displayCurrentDateTime()
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
 
     <!-- Custom styles for this template-->
-    <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="../CSS/sb-admin-2.min.css" rel="stylesheet">
     <link href="../CSS/newSales.css" rel="stylesheet">
 
 </head>
@@ -58,7 +100,7 @@ function displayCurrentDateTime()
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../PHP/Main.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -66,70 +108,7 @@ function displayCurrentDateTime()
             <!-- Divider -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Interface
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span>Components</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Components:</h6>
-                        <a class="collapse-item" href="../PHP/buttons.php">Buttons</a>
-                        <a class="collapse-item" href="../PHP/cards.php">Cards</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-fw fa-wrench"></i>
-                    <span>Utilities</span>
-                </a>
-                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Utilities:</h6>
-                        <a class="collapse-item" href="../PHP/utilities-color.php">Colors</a>
-                        <a class="collapse-item" href="../PHP/utilities-border.php">Borders</a>
-                        <a class="collapse-item" href="../PHP/utilities-animation.php">Animations</a>
-                        <a class="collapse-item" href="../PHP/utilities-other.php">Other</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Addons
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
-                    <i class="fas fa-fw fa-folder"></i>
-                    <span>Pages</span>
-                </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="../PHP/login.php">Login</a>
-                        <a class="collapse-item" href="register.html">Register</a>
-                        <a class="collapse-item" href="../PHP/forgot-password.php">Forgot Password</a>
-                        <div class="collapse-divider"></div>
-                        <h6 class="collapse-header">Other Pages:</h6>
-                        <a class="collapse-item" href="../PHP/404.php">404 Page</a>
-                        <a class="collapse-item" href="../PHP/blank.php">Blank Page</a>
-                    </div>
-                </div>
-            </li>
+              
 
             <!-- Nav Item - Charts -->
             <li class="nav-item">
@@ -144,12 +123,30 @@ function displayCurrentDateTime()
                     <span>Sales</span></a>
             </li>
 
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="../PHP/getInventory.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span></a>
-            </li>
+            <?php
+                if ($_SESSION["Level"] == 2)
+                {
+                    ?>
+                        <!-- Nav Item - Tables -->
+                        <li class="nav-item" hidden>
+                            <a class="nav-link" href="../PHP/getInventory.php">
+                                <i class="fas fa-fw fa-table"></i>
+                                <span>Tables</span></a>
+                        </li>
+                    <?php
+                }
+                else
+                {
+                    ?>
+                        <!-- Nav Item - Tables -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="../PHP/getInventory.php">
+                                <i class="fas fa-fw fa-table"></i>
+                                <span>Tables</span></a>
+                        </li>
+                    <?php
+                }
+            ?>
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -177,16 +174,6 @@ function displayCurrentDateTime()
                     </button>
 
                     <!-- Topbar Search -->
-                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
@@ -212,135 +199,22 @@ function displayCurrentDateTime()
                         </li>
 
                         <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
-                            </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Alerts Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                            </div>
-                        </li>
 
                         <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg" alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg" alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg" alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60" alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-                            </div>
-                        </li>
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $fullname  ?></span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
                                 <a class="dropdown-item" href="../PHP/userSettings.php">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
@@ -361,16 +235,31 @@ function displayCurrentDateTime()
                     <div>
                         <h2>Sales Registration Form</h2>
                         <form action="insert_sales.php" method="POST" id="newSales">
-                            <div class="form-group">
+                            <div class="form-group" id="date">
                                 <label for="sales_date">Sales Date:</label>
                                 <input type="datetime-local" id="sales_date" name="sales_date" required>
                             </div>
 
-                            <div class="form-group">
-                                <label for="customer_id">Customer ID:</label>
-                                <input type="text" id="customer_id" name="customer_id" required>
+                            <div class="form-group" id="nama">
+                                <label for="Name">Customer Name:</label>
+                                <input type="text" id="Name" name="Name" required>
                             </div>
 
+                            <div class="form-group">
+                                <label for="ic">Customer IC:</label>
+                                <input type="text" id="ic" name="ic" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Customer phone:</label>
+                                <input type="text" id="phone" name="phone" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Customer email:</label>
+                                <input type="text" id="email" name="email" required>
+                            </div>
+                            
                             <div class="form-group">
                                 <label for="product_id">Product ID:</label>
                                 <?php
@@ -390,10 +279,13 @@ function displayCurrentDateTime()
                                         <option value="">Select a product</option>
                                     <?php
                                     while ($rows = mysqli_fetch_assoc($result)) {
-                                        $product = $rows["Make"] . " " . $rows["Model"] . " " . $rows["chasis"];
-                                    ?>
-                                        <option value=<?php echo $rows["ID"]; ?> style="font-weight: bold"><?php echo $product; ?></option>
-                                    <?php
+                                        if($rows["Status"] != "Unavailable")
+                                        {
+                                            $product = $rows["Make"] . " " . $rows["Model"] . " " . $rows["chasis"];
+                                            ?>
+                                                <option value=<?php echo $rows["ID"]; ?> style="font-weight: bold"><?php echo $product; ?></option>
+                                            <?php
+                                        }
                                         $intCount++;
                                     }
                                     mysqli_close($conn);
@@ -402,27 +294,17 @@ function displayCurrentDateTime()
                             </div>
 
                             <div class="form-group">
-                                <label for="quantity">Quantity:</label>
-                                <input type="number" id="quantity" name="quantity" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="total_price">Total Price:</label>
+                                <label for="total_price">Sold Price in MYR:</label>
                                 <input type="number" step="0.01" id="total_price" name="total_price" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="salesperson_id">Salesperson ID:</label>
-                                <input type="text" id="salesperson_id" name="salesperson_id" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="payment_method">Payment Method:</label>
                                 <select name="payment_method" id="payment_method">
                                     <option value="">Select a product</option>
-                                    <option value="">Cash</option>
-                                    <option value="">Credit</option>
-                                    <option value="">Paypal</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Credit">Credit</option>
+                                    <option value="Paypal">Paypal</option>
                                 </select >
                             </div>
 
@@ -437,17 +319,12 @@ function displayCurrentDateTime()
                             </div>
 
                             <div class="form-group">
-                                <label for="shipping_address">Shipping Address:</label>
-                                <input type="text" id="shipping_address" name="shipping_address" required>
-                            </div>
-
-                            <div class="form-group">
                                 <label for="order_status">Order Status:</label>
                                 <select name="order_status" id="order_status">
                                     <option value="">Select a product</option>
-                                    <option value="">Pending</option>
-                                    <option value="">Shipped</option>
-                                    <option value="">Delivered</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="Delivered">Delivered</option>
                                 </select>
                             </div>
 
@@ -455,19 +332,56 @@ function displayCurrentDateTime()
                                 <label for="payment_status">Payment Status:</label>
                                 <select name="payment_status" id="payment_status">
                                     <option value="">Select a product</option>
-                                    <option value="">Pending</option>
-                                    <option value="">Paid</option>
-                                    <option value="">Cash</option>
-                                    <option value="">Credit</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Credit">Credit</option>
                                 </select>
                             </div>
 
-                            <div class="form-group-Remarks">
-                                <label for="payment_status">Remarks:</label>
-                                <input type="text" id="remarks" name="remarks" required>
+                            <div class="form-group">
+                                <label for="shipping_address">Shipping Address:</label>
+                                <input type="text" id="shipping_address" name="shipping_address" required>
                             </div>
 
-                            <input type="submit" value="Register Sale">
+                            <div class="form-group">
+                                <label for="registration">Registration No.:</label>
+                                <input type="text" id="registration" name="registration" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fee">Shipping Fee</label>
+                                <input type="number" id="fee" name="fee" required>
+                            </div>
+
+                            <?php
+                                if ($_SESSION["Level"] == 2)
+                                {
+                                    ?>
+                                        <!-- Nav Item - Tables -->
+                                        <div class="form-group-Remarks">
+                                            <label for="payment_status">Remarks:</label>
+                                            <input type="text" id="remarks" name="remarks">
+                                        </div>
+                                    <?php
+                                }
+                                else
+                                {
+                                    ?>
+                                        <!-- Nav Item - Tables -->
+                                        <div class="form-group-Remarks">
+                                            <label for="payment_status" hidden>Remarks:</label>
+                                            <input type="text" id="remarks" name="remarks"hidden>
+                                        </div>
+                                    <?php
+                                }
+                            ?>
+
+                            <div class="form-group">
+                                <label for="">...</label>
+                                <input type="submit" value="Register Sale" >
+                            </div>
+
                         </form>
                     </div>
                 </div>
@@ -524,7 +438,7 @@ function displayCurrentDateTime()
     <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="../js/sb-admin-2.min.js"></script>
+    <script src="../JS/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
     <script src="../vendor/chart.js/Chart.min.js"></script>

@@ -1,5 +1,10 @@
 $(document).ready(function () {
-    $('#myTable').DataTable();
+    $('#myTable').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    } );
 
     $('#newSales').submit(function (e) {
         e.preventDefault();
@@ -8,19 +13,34 @@ $(document).ready(function () {
             method: 'POST',
             data: $(this).serialize(),
             success: function (response) {
-                console.log(response);
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Your data has been submitted successfully.',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then(function () {
-                    $('#newSales')[0].reset();
-                    // Do something on success
-                    // Redirect to a different page or do something else
-                    // after the user clicks "OK"
-                    $("#Modal-Account").css("display", "none");
-                });
+                if(response = "success 3")
+                {
+                    console.log(response);
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Your data has been submitted successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(function () {
+                        $('#newSales')[0].reset();
+                        // Do something on success
+                        // Redirect to a different page or do something else
+                        // after the user clicks "OK"
+                        $("#Modal-Account").css("display", "none");
+                    });
+                }
+                else
+                {
+                    console.log(response);
+                    // Do something on error
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'There was an error submitting your data.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+                
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(textStatus, errorThrown);
@@ -34,6 +54,23 @@ $(document).ready(function () {
             }
         });
     });
+
+    $('#product_id').on('change', function() {
+        var selectedIndex = $(this).val();
+        if (selectedIndex) {
+          $.ajax({
+            url: '../PHP/getRegistration.php',
+            method: 'POST',
+            data: { selectedIndex: selectedIndex },
+            success: function(response) {
+              $('#registration').val(response);
+            },
+            error: function() {
+              console.log('Error occurred while fetching file.');
+            }
+          });
+        }
+      });
 });
 
 
@@ -57,7 +94,8 @@ function deleteRow(button) {
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     // If the deletion is successful, remove the row from the table
-                    if (this.responseText === "success") {
+                    if (this.responseText === "successsuccesssuccess") {
+                        console.log(this.responseText);
                         Swal.fire({
                             title: 'Success!',
                             text: 'Your data has been deleted successfully.',
@@ -85,3 +123,20 @@ function deleteRow(button) {
         }
     });
 }
+
+function exportDataTableToPDF(dataTableId) {
+    const doc = new jsPDF();
+  
+    // Fetch the DataTable element
+    const dataTable = document.getElementById(dataTableId);
+  
+    // Get the table's HTML content
+    const tableHTML = dataTable.outerHTML;
+  
+    // Convert HTML to PDF
+    doc.fromHTML(tableHTML, 15, 15, { 'width': 180 });
+  
+    // Save the PDF
+    doc.save('datatable.pdf');
+  
+  }

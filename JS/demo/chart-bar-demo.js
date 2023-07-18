@@ -77,7 +77,7 @@ $(document).ready(function () {
             yAxes: [{
               ticks: {
                 min: 0,
-                max: 15000,
+                max: 300000,
                 maxTicksLimit: 5,
                 padding: 10,
                 // Include a dollar sign in the ticks
@@ -102,7 +102,7 @@ $(document).ready(function () {
             titleFontColor: '#6e707e',
             titleFontSize: 14,
             backgroundColor: "rgb(255,255,255)",
-            bodyFontColor: "#858796",
+            bodyFontColor: "#000000",
             borderColor: '#dddfeb',
             borderWidth: 1,
             xPadding: 15,

@@ -89,7 +89,7 @@ $(document).ready(function () {
                 padding: 10,
                 // Include a dollar sign in the ticks
                 callback: function (value, index, values) {
-                  return '$' + number_format(value);
+                  return 'RM ' + number_format(value);
                 }
               },
               gridLines: {
@@ -106,7 +106,7 @@ $(document).ready(function () {
           },
           tooltips: {
             backgroundColor: "rgb(255,255,255)",
-            bodyFontColor: "#858796",
+            bodyFontColor: "#000000",
             titleMarginBottom: 10,
             titleFontColor: '#6e707e',
             titleFontSize: 14,
